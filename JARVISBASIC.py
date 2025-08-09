@@ -8,11 +8,13 @@ import pywhatkit
 import webbrowser
 import requests
 import pyautogui
+import time
 from ctypes import POINTER, cast
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
-API_KEY = "2aaf165581a4befd70fa64b979b724e6"  # Weather API Key
+# Weather API Key
+API_KEY = "2aaf165581a4befd70fa64b979b724e6"
 
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
@@ -23,9 +25,6 @@ def speak(text):
     engine.say(text)
     engine.runAndWait()
 
-# -----------------------
-# Extra Feature Functions
-# -----------------------
 def google_search(query):
     url = f"https://www.google.com/search?q={query.replace(' ', '+')}"
     webbrowser.open(url)
@@ -43,7 +42,7 @@ def get_weather(city):
             speak(f"The weather in {city} is {temp} degrees Celsius with {description}")
         else:
             speak("City not found.")
-    except Exception as e:
+    except Exception:
         speak("Sorry, I couldn't get the weather right now.")
 
 def open_path(path):
@@ -53,7 +52,7 @@ def open_path(path):
             speak(f"Opened {path}")
         else:
             speak("Path not found.")
-    except Exception as e:
+    except Exception:
         speak("Sorry, I couldn't open the path.")
 
 def take_screenshot():
@@ -68,16 +67,13 @@ def set_volume(level):
         volume = cast(interface, POINTER(IAudioEndpointVolume))
         volume.SetMasterVolumeLevelScalar(level, None)
         speak(f"Volume set to {int(level*100)} percent")
-    except Exception as e:
+    except Exception:
         speak("Sorry, I couldn't change the volume.")
 
 def open_calendar():
     webbrowser.open("https://calendar.google.com/")
     speak("Opening Google Calendar")
 
-# -----------------------
-# Existing Functions
-# -----------------------
 def open_software(software_name):
     if 'chrome' in software_name:
         speak('Opening Chrome...')
@@ -88,8 +84,11 @@ def open_software(software_name):
         program = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
         subprocess.Popen([program])
     elif 'play' in software_name:
-        speak('Opening YouTube')
-        pywhatkit.playonyt(software_name)
+        song = software_name.replace('play', '').strip()
+        speak(f"Playing {song} on YouTube")
+        pywhatkit.playonyt(song)
+        time.sleep(5)  # Wait for YouTube page to load
+        pyautogui.press('space')  # Press space to play video
     elif 'notepad' in software_name:
         speak('Opening Notepad...')
         subprocess.Popen(['notepad.exe']) 
@@ -147,7 +146,6 @@ def cmd():
         speak('Stopping the program. Goodbye!')
         sys.exit()
 
-    # Existing features
     if 'open' in text:
         software_name = text.replace('open', '').strip()
         open_software(software_name)
@@ -161,8 +159,6 @@ def cmd():
         speak('Ajitheyyy Kadavuleyy')
     elif 'what is your name' in text:
         speak('My name is Jack, your Artificial Intelligence')
-
-    # New features
     elif 'search about' in text:
         query = text.replace('search about', '').strip()
         google_search(query)
@@ -188,3 +184,4 @@ while True:
         while True: 
             if cmd():
                 break
+ 
